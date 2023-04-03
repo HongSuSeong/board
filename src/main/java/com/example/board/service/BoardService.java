@@ -3,6 +3,8 @@ package com.example.board.service;
 import com.example.board.domain.Repository.BoardRepository;
 import com.example.board.domain.entity.Board;
 import com.example.board.dto.BoardDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -23,21 +25,13 @@ public class BoardService {
     }
 
     @Transactional
-    public List<BoardDto> getBoardList() {
-        List<Board> boardList = boardRepository.findAll();
-        List<BoardDto> boardDtoList = new ArrayList<>();
+    public Page<Board> getBoardList(Pageable pageable) {
+        return  boardRepository.findAll(pageable);
+    }
 
-        for(Board board : boardList) {
-            BoardDto boardDto = BoardDto.builder()
-                    .id(board.getId())
-                    .author(board.getAuthor())
-                    .title(board.getTitle())
-                    .content(board.getContent())
-                    .createdDate(board.getCreatedDate())
-                    .build();
-            boardDtoList.add(boardDto);
-        }
-        return boardDtoList;
+    @Transactional
+    public Page<Board> getBoardSearchList(String SearchKeyword,Pageable pageable) {
+        return  boardRepository.findByTitleContaining(SearchKeyword,pageable);
     }
 
     @Transactional
@@ -59,4 +53,5 @@ public class BoardService {
     public void deletePost(Long id) {
         boardRepository.deleteById(id);
     }
+
 }

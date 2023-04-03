@@ -1,6 +1,7 @@
 package com.example.board.controller;
 
 
+import com.example.board.domain.entity.Board;
 import com.example.board.dto.BoardDto;
 import com.example.board.dto.FileDto;
 import com.example.board.service.BoardService;
@@ -8,6 +9,10 @@ import com.example.board.service.FileService;
 import com.example.board.util.MD5Generator;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,9 +40,23 @@ public class BoardController {
     }
 
     @GetMapping("/")
-    public String list(Model model) {
-        List<BoardDto> boardDtoList = boardService.getBoardList();
-        model.addAttribute("postList", boardDtoList);
+    public String list(Model model, @PageableDefault(page = 0, size = 10, sort="id",direction = Sort.Direction.DESC)
+            Pageable pageable, String searchKeyword) {
+        Page<Board> list = null;
+        if(searchKeyword == null) {
+            list = boardService.getBoardList(pageable);
+        } else {
+            list = boardService.getBoardSearchList(searchKeyword,pageable);
+        }
+        int nowPage = list.getPageable().getPageNumber() + 1;
+        int startPage = Math.max(nowPage - 4 ,1);
+        int endPage = Math.min(nowPage + 5, list.getTotalPages());
+
+        model.addAttribute("list", list);
+        model.addAttribute("nowPage", nowPage);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+
         return "board/list.html";
     }
 
