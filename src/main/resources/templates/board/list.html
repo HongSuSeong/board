@@ -42,6 +42,10 @@
                 ${param.searchKeyword})}" th:text="${page}"></a>
             <strong th:if="${page == nowPage}" th:text="${page}" style="color : red"></strong>
         </th:block>
+        <form th:action="@{/}" method="get">
+            <input type="text" name="searchKeyword">
+            <button type="submit">검색</button>
+        </form>
     </div>
     <div class="row">
         <div class="col-auto mr-auto"></div>
